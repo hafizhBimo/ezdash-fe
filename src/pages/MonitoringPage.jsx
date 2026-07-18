@@ -97,7 +97,13 @@ const MonitoringPage = () => {
     if (pagination.pageSize !== pageSize) setPageSize(pagination.pageSize);
 
     if (sorter.field) {
-      setSortBy(sorter.field);
+      // If sorter.field is an array (nested properties e.g., ['item', 'stock_code']),
+      // extract the last element which represents the actual database column name.
+      const sortField = Array.isArray(sorter.field) 
+        ? sorter.field[sorter.field.length - 1] 
+        : sorter.field;
+      
+      setSortBy(sortField);
       setSortOrder(sorter.order === 'descend' ? 'DESC' : 'ASC');
     }
   };
@@ -230,93 +236,95 @@ const MonitoringPage = () => {
       {/* Snapshot and filters panel */}
       <Card className="glass-card">
         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-          <Row gutter={[16, 16]} align="middle" justify="space-between">
-            <Col xs={24} md={8}>
-              <Space>
-                <CalendarOutlined style={{ color: '#1890ff', fontSize: '18px' }} />
-                <Text strong>Snapshot Tanggal:</Text>
+          <Row gutter={[16, 16]} align="middle">
+            {/* Snapshot Selector */}
+            <Col xs={24} md={12} lg={10} xl={8}>
+              <Space style={{ width: '100%', justifyContent: 'flex-start' }}>
+                <CalendarOutlined style={{ color: '#1890ff', fontSize: '16px' }} />
+                <Text strong style={{ whiteSpace: 'nowrap' }}>Snapshot:</Text>
                 <Select 
                   value={selectedUpload} 
-                  style={{ width: 220 }} 
+                  style={{ width: '100%', minWidth: '180px' }} 
                   onChange={setSelectedUpload}
                 >
                   {uploads.map(u => (
                     <Option key={u.id} value={u.id}>
-                      {new Date(u.upload_date).toLocaleDateString('id-ID')} ({u.filename.substring(0, 15)}...)
+                      {new Date(u.upload_date).toLocaleDateString('id-ID')} ({u.filename.substring(0, 12)}...)
                     </Option>
                   ))}
                 </Select>
               </Space>
             </Col>
             
-            <Col xs={24} md={8} style={{ textAlign: 'right' }}>
+            {/* Search Input */}
+            <Col xs={24} md={12} lg={14} xl={16} style={{ display: 'flex', justifyContent: 'flex-end' }}>
               <Input
                 placeholder="Cari Nama Barang / Stock Code..."
                 prefix={<SearchOutlined />}
                 allowClear
                 onPressEnter={(e) => handleSearch(e.target.value)}
                 onChange={(e) => !e.target.value && handleSearch('')}
-                style={{ width: 300 }}
+                style={{ width: '100%', maxWidth: '360px' }}
               />
             </Col>
           </Row>
 
-          <Row gutter={[8, 8]} justify="start" style={{ flexWrap: 'wrap' }}>
-            <Col>
+          <Row gutter={[8, 8]} justify="start">
+            <Col xs={12} sm={6} md={4}>
               <Select 
                 placeholder="Warehouse" 
                 value={warehouse} 
                 onChange={setWarehouse} 
                 allowClear 
-                style={{ width: 140 }}
+                style={{ width: '100%' }}
               >
                 {filterOptions.warehouses.map(w => <Option key={w} value={w}>{w}</Option>)}
               </Select>
             </Col>
 
-            <Col>
+            <Col xs={12} sm={8} md={5}>
               <Select 
                 placeholder="Vendor" 
                 value={vendor} 
                 onChange={setVendor} 
                 allowClear 
-                style={{ width: 180 }}
+                style={{ width: '100%' }}
               >
                 {filterOptions.vendors.map(v => <Option key={v} value={v}>{v}</Option>)}
               </Select>
             </Col>
 
-            <Col>
+            <Col xs={12} sm={6} md={4}>
               <Select 
                 placeholder="Stock Type" 
                 value={stockType} 
                 onChange={setStockType} 
                 allowClear 
-                style={{ width: 120 }}
+                style={{ width: '100%' }}
               >
                 {filterOptions.stockTypes.map(t => <Option key={t} value={t}>{t}</Option>)}
               </Select>
             </Col>
 
-            <Col>
+            <Col xs={12} sm={6} md={4}>
               <Select 
                 placeholder="Stock Class" 
                 value={stockClass} 
                 onChange={setStockClass} 
                 allowClear 
-                style={{ width: 120 }}
+                style={{ width: '100%' }}
               >
                 {filterOptions.stockClasses.map(c => <Option key={c} value={c}>{c}</Option>)}
               </Select>
             </Col>
 
-            <Col>
+            <Col xs={12} sm={6} md={4}>
               <Select 
                 placeholder="Status" 
                 value={status} 
                 onChange={setStatus} 
                 allowClear 
-                style={{ width: 120 }}
+                style={{ width: '100%' }}
               >
                 <Option value="SAFE">AMAN</Option>
                 <Option value="WARNING">WARNING</Option>
@@ -325,11 +333,8 @@ const MonitoringPage = () => {
               </Select>
             </Col>
 
-            <Col>
-              <Button onClick={handleResetFilters}>Reset</Button>
-            </Col>
-
-            <Col>
+            <Col xs={12} sm={6} md={3} style={{ display: 'flex', gap: '8px' }}>
+              <Button onClick={handleResetFilters} style={{ flex: 1 }}>Reset</Button>
               <Button 
                 type="primary" 
                 icon={<ReloadOutlined />} 

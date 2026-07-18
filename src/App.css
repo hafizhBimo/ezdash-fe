@@ -8,6 +8,17 @@ body {
   color: #1f1f1f;
 }
 
+/* Fix for default global root centering container */
+#root {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  border-inline: none !important;
+  min-height: 100vh !important;
+  display: block !important;
+  text-align: left !important;
+}
+
 /* Page wrapper */
 .dashboard-layout {
   min-height: 100vh;
@@ -71,8 +82,10 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  width: 100vw;
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   padding: 16px;
+  box-sizing: border-box;
 }
 
 .login-form-card {
@@ -83,6 +96,7 @@ body {
   border-radius: 16px;
   padding: 40px 32px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
 }
 
 .login-header {
@@ -154,4 +168,5 @@ body {
   margin-bottom: 16px;
   border-left: 4px solid #1890ff;
   padding-left: 8px;
+  text-align: left;
 }
