@@ -1,17 +1,24 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Layout, Menu, Button, Space, Typography, Drawer, Tooltip } from 'antd';
 import { 
-  DashboardOutlined, 
-  TableOutlined, 
+  HomeOutlined,
+  AppstoreOutlined,
+  TableOutlined,
+  LineChartOutlined,
+  ClockCircleOutlined,
+  WarningOutlined,
+  DeleteOutlined,
+  FileTextOutlined,
+  SettingOutlined,
   UploadOutlined, 
   LogoutOutlined,
-  UserOutlined,
   MenuOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined
 } from '@ant-design/icons';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import api from '../services/api';
 
 const { Header, Sider, Content } = Layout;
 const { Text } = Typography;
@@ -39,6 +46,38 @@ const MainLayout = ({ children }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const [lastUpdate, setLastUpdate] = useState('Loading...');
+
+  const fetchLastUpdate = async () => {
+    try {
+      const response = await api.get('/upload/history');
+      const successfulUploads = response.data.data.filter(u => u.status === 'SUCCESS');
+      if (successfulUploads.length > 0) {
+        const latest = successfulUploads[0];
+        const date = new Date(latest.upload_date);
+        
+        // Memformat manual menjadi DD/MM/YY HH:MM
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = String(date.getFullYear()).substring(2); // Ambil 2 angka terakhir tahun
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        
+        const formattedDate = `${day}/${month}/${year} ${hours}:${minutes}`;
+        setLastUpdate(formattedDate);
+      } else {
+        setLastUpdate('Belum ada data');
+      }
+    } catch (error) {
+      console.error('Gagal mengambil tanggal update terakhir:', error);
+      setLastUpdate('Gagal memuat');
+    }
+  };
+
+  useEffect(() => {
+    fetchLastUpdate();
+  }, [location.pathname]);
+
   const handleLogout = () => {
     logout();
     navigate('/login');
@@ -48,22 +87,59 @@ const MainLayout = ({ children }) => {
     const items = [
       {
         key: '/',
-        icon: <DashboardOutlined />,
-        label: <Link to="/" onClick={() => setDrawerVisible(false)}>Dashboard</Link>
+        icon: <HomeOutlined />,
+        label: <Link to="/" onClick={() => setDrawerVisible(false)}>Overview</Link>
       },
       {
         key: '/monitoring',
-        icon: <TableOutlined />,
-        label: <Link to="/monitoring" onClick={() => setDrawerVisible(false)}>Stock Monitoring</Link>
+        icon: <HomeOutlined />,
+        label: <Link to="/monitoring" onClick={() => setDrawerVisible(false)}>Stok Gudang</Link>
+      },
+      {
+        key: '/stok-consignment',
+        icon: <AppstoreOutlined />,
+        label: <Link to="/stok-consignment" onClick={() => setDrawerVisible(false)}>Stok Consignment</Link>
+      },
+      {
+        key: '/pemakaian',
+        icon: <LineChartOutlined />,
+        label: <Link to="/pemakaian" onClick={() => setDrawerVisible(false)}>Pemakaian</Link>
+      },
+      {
+        key: '/coverage',
+        icon: <ClockCircleOutlined />,
+        label: <Link to="/coverage" onClick={() => setDrawerVisible(false)}>Coverage (Days of Stock)</Link>
+      },
+      {
+        key: '/alert-exception',
+        icon: <WarningOutlined />,
+        label: <Link to="/alert-exception" onClick={() => setDrawerVisible(false)}>Alert & Exception</Link>
+      },
+      {
+        key: '/dead-stock',
+        icon: <DeleteOutlined />,
+        label: <Link to="/dead-stock" onClick={() => setDrawerVisible(false)}>Dead Stock / Overstock</Link>
+      },
+      {
+        key: '/laporan-detail',
+        icon: <FileTextOutlined />,
+        label: <Link to="/laporan-detail" onClick={() => setDrawerVisible(false)}>Laporan Detail</Link>
       }
     ];
 
     if (user && user.role === 'ADMIN') {
-      items.push({
-        key: '/upload',
-        icon: <UploadOutlined />,
-        label: <Link to="/upload" onClick={() => setDrawerVisible(false)}>Upload Excel</Link>
-      });
+      items.push(
+        {
+          key: '/settings',
+          icon: <SettingOutlined />,
+          label: <Link to="/settings" onClick={() => setDrawerVisible(false)}>Settings</Link>
+        },
+        {
+          key: '/upload',
+          icon: <UploadOutlined />,
+          label: <Link to="/upload" onClick={() => setDrawerVisible(false)}>Upload Excel</Link>
+        }
+      );
     }
 
     return items;
@@ -80,11 +156,12 @@ const MainLayout = ({ children }) => {
           collapsedWidth={64}
           collapsed={collapsed}
           style={{
-            background: '#001529',
+            background: '#013a77', // Matched with the mockup deep blue
             position: 'sticky',
             top: 0,
             height: '100vh',
-            overflow: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
             flexShrink: 0
           }}
         >
@@ -124,14 +201,35 @@ const MainLayout = ({ children }) => {
             />
           </div>
 
-          <Menu
-            theme="dark"
-            mode="inline"
-            selectedKeys={[location.pathname]}
-            items={getMenuItems()}
-            inlineCollapsed={collapsed}
-            style={{ borderRight: 0, marginTop: 8 }}
-          />
+          <div style={{ flex: 1, overflow: 'auto' }}>
+            <Menu
+              theme="dark"
+              mode="inline"
+              selectedKeys={[location.pathname]}
+              items={getMenuItems()}
+              inlineCollapsed={collapsed}
+              style={{ borderRight: 0, marginTop: 8, background: 'transparent' }}
+            />
+          </div>
+
+          {!collapsed && (
+            <div style={{ padding: '16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+              <div style={{ 
+                border: '1px solid rgba(255,255,255,0.3)', 
+                borderRadius: '8px', 
+                padding: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px'
+              }}>
+                <FileTextOutlined style={{ fontSize: 24, color: '#fff' }} />
+                <div style={{ color: '#fff', fontSize: 12 }}>
+                  <div style={{ fontWeight: 600 }}>Last Update :</div>
+                  <div>{lastUpdate}</div>
+                </div>
+              </div>
+            </div>
+          )}
         </Sider>
       )}
 

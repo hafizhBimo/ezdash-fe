@@ -6,6 +6,13 @@ import MainLayout from './components/MainLayout';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import MonitoringPage from './pages/MonitoringPage';
+import StokConsignmentPage from './pages/StokConsignmentPage';
+import PemakaianPage from './pages/PemakaianPage';
+import CoveragePage from './pages/CoveragePage';
+import AlertExceptionPage from './pages/AlertExceptionPage';
+import DeadStockPage from './pages/DeadStockPage';
+import LaporanDetailPage from './pages/LaporanDetailPage';
+import SettingsPage from './pages/SettingsPage';
 import UploadHistoryPage from './pages/UploadHistoryPage';
 import './App.css';
 
@@ -33,6 +40,24 @@ function App() {
               <PrivateRoute>
                 <MainLayout>
                   <MonitoringPage />
+                </MainLayout>
+              </PrivateRoute>
+            } 
+          />
+
+          <Route path="/stok-consignment" element={<PrivateRoute><MainLayout><StokConsignmentPage /></MainLayout></PrivateRoute>} />
+          <Route path="/pemakaian" element={<PrivateRoute><MainLayout><PemakaianPage /></MainLayout></PrivateRoute>} />
+          <Route path="/coverage" element={<PrivateRoute><MainLayout><CoveragePage /></MainLayout></PrivateRoute>} />
+          <Route path="/alert-exception" element={<PrivateRoute><MainLayout><AlertExceptionPage /></MainLayout></PrivateRoute>} />
+          <Route path="/dead-stock" element={<PrivateRoute><MainLayout><DeadStockPage /></MainLayout></PrivateRoute>} />
+          <Route path="/laporan-detail" element={<PrivateRoute><MainLayout><LaporanDetailPage /></MainLayout></PrivateRoute>} />
+
+          <Route 
+            path="/settings" 
+            element={
+              <PrivateRoute roles={['ADMIN']}>
+                <MainLayout>
+                  <SettingsPage />
                 </MainLayout>
               </PrivateRoute>
             } 
