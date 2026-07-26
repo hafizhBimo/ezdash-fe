@@ -213,17 +213,17 @@ const DashboardPage = () => {
 
         {/* ROW 2: MAIN CHARTS */}
         <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
-          <Col xs={24} md={6}>
+          <Col xs={24} lg={6} xl={6}>
             <Card title="DISTRIBUSI STOK (Qty)" bordered={false} className="glass-card" style={{ height: '100%' }}>
               <StockDistributionChart data={charts.stockDistribution} />
             </Card>
           </Col>
-          <Col xs={24} md={10}>
+          <Col xs={24} lg={10} xl={10}>
             <Card title="TREND PEMAKAIAN (6 BULAN TERAKHIR)" bordered={false} className="glass-card" style={{ height: '100%' }}>
               <UsageTrendChart trends={charts.trends} />
             </Card>
           </Col>
-          <Col xs={24} md={8}>
+          <Col xs={24} lg={8} xl={8}>
             <Card title="TOP 10 PEMAKAIAN TERTINGGI (QTY)" bordered={false} className="glass-card" style={{ height: '100%' }}>
               <TopUsageChart data={charts.topUsageItems} />
             </Card>
@@ -232,17 +232,17 @@ const DashboardPage = () => {
 
         {/* ROW 3: COVERAGE, STOCK TYPE & CONSIGNMENT VENDOR CHARTS */}
         <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
-          <Col xs={24} md={8}>
+          <Col xs={24} md={12} lg={8} xl={8}>
             <Card title="COVERAGE (DAYS OF STOCK)" bordered={false} className="glass-card" style={{ height: '100%' }}>
               <CoverageChart data={charts.coverageDistribution} />
             </Card>
           </Col>
-          <Col xs={24} md={8}>
+          <Col xs={24} md={12} lg={8} xl={8}>
             <Card title="STOCK TYPE (QTY)" bordered={false} className="glass-card" style={{ height: '100%' }}>
               <StockTypeDistributionChart data={charts.stockTypeDistribution} />
             </Card>
           </Col>
-          <Col xs={24} md={8}>
+          <Col xs={24} md={24} lg={8} xl={8}>
             <Card title="STOK CONSIGNMENT PER VENDOR" bordered={false} className="glass-card" style={{ height: '100%' }}>
               <VendorConsignmentChart data={charts.vendorConsignment} />
             </Card>
@@ -266,10 +266,15 @@ const DashboardPage = () => {
           </Col>
         </Row>
 
-        {/* ROW 4: ALERTS & EXCEPTIONS */}
+        {/* ROW 5: ALERTS & EXCEPTIONS */}
         <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
-          <Col xs={24} md={14}>
-            <Card title="ALERT & EXCEPTION" bordered={false} className="glass-card" style={{ height: '100%' }}>
+          <Col span={24}>
+            <Card 
+              title="ALERT & EXCEPTION" 
+              extra={<a href="/monitoring" style={{ fontSize: 13, fontWeight: 600 }}>Lihat Semua &gt;</a>}
+              bordered={false} 
+              className="glass-card"
+            >
               <AlertSection 
                 uploadId={selectedUpload} 
                 alertSummary={charts.alertSummary}
@@ -277,30 +282,34 @@ const DashboardPage = () => {
               />
             </Card>
           </Col>
-          <Col xs={24} md={10}>
-            <Card title="DEAD STOCK / OVERSTOCK ANALYSIS (NILAI)" bordered={false} className="glass-card" style={{ height: '100%' }}>
-              <Row gutter={[8, 8]} style={{ marginBottom: 16 }}>
-                <Col span={12}>
-                  <div style={{ border: '1px solid #ffccc7', background: '#fff1f0', padding: 12, borderRadius: 8, textAlign: 'center' }}>
-                    <Text type="danger" style={{ fontSize: 11, fontWeight: 600, display: 'block' }}>NILAI DEAD STOCK (&gt; 180 HARI)</Text>
-                    <Title level={4} style={{ color: '#f5222d', margin: '4px 0' }}>
+        </Row>
+
+        {/* ROW 6: DEAD STOCK & OVERSTOCK ANALYSIS */}
+        <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+          <Col span={24}>
+            <Card title="DEAD STOCK / OVERSTOCK ANALYSIS (NILAI)" bordered={false} className="glass-card">
+              <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
+                <Col xs={24} sm={12}>
+                  <div style={{ border: '1px solid #ffccc7', background: '#fff1f0', padding: 16, borderRadius: 8, textAlign: 'center' }}>
+                    <Text type="danger" style={{ fontSize: 12, fontWeight: 600, display: 'block' }}>NILAI DEAD STOCK (&gt; 180 HARI)</Text>
+                    <Title level={3} style={{ color: '#f5222d', margin: '4px 0' }}>
                       Rp {parseFloat(charts.alertSummary?.deadStockValue || 0).toLocaleString('id-ID')}
                     </Title>
-                    <Text type="secondary" style={{ fontSize: 11 }}>{charts.alertSummary?.deadStock || 0} SKU</Text>
+                    <Text type="secondary" style={{ fontSize: 12 }}>{charts.alertSummary?.deadStock || 0} SKU</Text>
                   </div>
                 </Col>
-                <Col span={12}>
-                  <div style={{ border: '1px solid #ffe7ba', background: '#fff7e6', padding: 12, borderRadius: 8, textAlign: 'center' }}>
-                    <Text type="warning" style={{ fontSize: 11, fontWeight: 600, display: 'block', color: '#fa8c16' }}>NILAI OVERSTOCK (&gt; 90 HARI)</Text>
-                    <Title level={4} style={{ color: '#fa8c16', margin: '4px 0' }}>
+                <Col xs={24} sm={12}>
+                  <div style={{ border: '1px solid #ffe7ba', background: '#fff7e6', padding: 16, borderRadius: 8, textAlign: 'center' }}>
+                    <Text type="warning" style={{ fontSize: 12, fontWeight: 600, display: 'block', color: '#fa8c16' }}>NILAI OVERSTOCK (&gt; 90 HARI)</Text>
+                    <Title level={3} style={{ color: '#fa8c16', margin: '4px 0' }}>
                       Rp {parseFloat(charts.alertSummary?.overStockValue || 0).toLocaleString('id-ID')}
                     </Title>
-                    <Text type="secondary" style={{ fontSize: 11 }}>{charts.alertSummary?.overStock || 0} SKU</Text>
+                    <Text type="secondary" style={{ fontSize: 12 }}>{charts.alertSummary?.overStock || 0} SKU</Text>
                   </div>
                 </Col>
               </Row>
               
-              <Text strong style={{ fontSize: 12, display: 'block', marginBottom: 12 }}>AGING BUCKET (BERDASARKAN NILAI STOK)</Text>
+              <Text strong style={{ fontSize: 13, display: 'block', marginBottom: 12 }}>AGING BUCKET (BERDASARKAN NILAI STOK)</Text>
               <AgingBucketChart data={charts.agingBuckets} />
             </Card>
           </Col>

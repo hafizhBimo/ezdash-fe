@@ -331,11 +331,14 @@ const MainLayout = ({ children }) => {
 
         <Content
           style={{
-            margin: isMobile ? '12px 8px' : '24px 20px',
+            margin: isMobile ? '12px 8px' : '24px auto',
             padding: isMobile ? 12 : 24,
+            width: '100%',
+            maxWidth: 1800,
             minHeight: 280,
             background: '#f0f2f5',
-            overflow: 'initial'
+            overflow: 'initial',
+            boxSizing: 'border-box'
           }}
         >
           {children}

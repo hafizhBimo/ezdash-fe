@@ -25,21 +25,44 @@ const UsageTrendChart = ({ trends }) => {
         return res;
       }
     },
-    legend: { data: ['Nilai Pemakaian (Rp)', 'Qty Pemakaian'] },
-    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-    xAxis: { type: 'category', boundaryGap: false, data: dates },
+    legend: { 
+      data: ['Nilai Pemakaian (Rp)', 'Qty Pemakaian'],
+      top: 0,
+      left: 'center',
+      textStyle: { fontSize: 12 }
+    },
+    grid: { 
+      top: 36, 
+      bottom: 25, 
+      left: '2%', 
+      right: '2%', 
+      containLabel: true 
+    },
+    xAxis: { 
+      type: 'category', 
+      boundaryGap: false, 
+      data: dates,
+      axisLabel: { fontSize: 11, margin: 12 }
+    },
     yAxis: [
       {
         type: 'value',
         name: 'Nilai (Rp)',
+        nameTextStyle: { fontSize: 11, color: '#8c8c8c' },
         axisLabel: {
-          formatter: (val) => val >= 1e6 ? `${(val/1e6).toFixed(0)}M` : val
+          fontSize: 10,
+          formatter: (val) => val >= 1e9 ? `${(val/1e9).toFixed(1)}B` : val >= 1e6 ? `${(val/1e6).toFixed(0)}M` : val
         }
       },
       {
         type: 'value',
         name: 'Qty',
-        position: 'right'
+        nameTextStyle: { fontSize: 11, color: '#8c8c8c' },
+        position: 'right',
+        axisLabel: {
+          fontSize: 10,
+          formatter: (val) => val >= 1000 ? `${(val/1000).toFixed(0)}k` : val
+        }
       }
     ],
     series: [
@@ -68,11 +91,8 @@ const UsageTrendChart = ({ trends }) => {
   };
 
   return (
-    <div className="chart-panel">
-      <div className="chart-title">Tren Pemakaian 6 Bulan Terakhir</div>
-      <div style={{ height: '350px' }}>
-        <ReactECharts option={option} style={{ height: '100%', width: '100%' }} />
-      </div>
+    <div style={{ height: '300px', width: '100%' }}>
+      <ReactECharts option={option} style={{ height: '100%', width: '100%' }} />
     </div>
   );
 };

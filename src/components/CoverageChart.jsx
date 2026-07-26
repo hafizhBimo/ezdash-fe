@@ -2,7 +2,6 @@ import React from 'react';
 import ReactECharts from 'echarts-for-react';
 
 const CoverageChart = ({ data }) => {
-  // Map specific colors per item name or statusKey
   const colorMap = {
     'No Usage (0 Hari)': '#8c8c8c',
     '<= 15 Hari (Critical)': '#f5222d',
@@ -20,16 +19,17 @@ const CoverageChart = ({ data }) => {
     tooltip: { trigger: 'item', formatter: '{a} <br/>{b} : <b>{c} SKUs</b> ({d}%)' },
     legend: {
       orient: 'vertical',
-      right: '2%',
+      right: '0%',
       top: 'middle',
-      icon: 'circle'
+      icon: 'circle',
+      textStyle: { fontSize: 11 }
     },
     series: [
       {
         name: 'Coverage (Days of Stock)',
         type: 'pie',
         radius: ['38%', '68%'],
-        center: ['38%', '50%'],
+        center: ['30%', '50%'],
         avoidLabelOverlap: false,
         itemStyle: {
           borderRadius: 5,
@@ -44,11 +44,8 @@ const CoverageChart = ({ data }) => {
   };
 
   return (
-    <div className="chart-panel">
-      <div className="chart-title">Coverage (Days of Stock) Distribution</div>
-      <div style={{ height: '300px' }}>
-        <ReactECharts option={option} style={{ height: '100%', width: '100%' }} />
-      </div>
+    <div style={{ height: '300px', width: '100%' }}>
+      <ReactECharts option={option} style={{ height: '100%', width: '100%' }} />
     </div>
   );
 };

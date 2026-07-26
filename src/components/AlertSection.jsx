@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Row, Col, Card, Typography, Table, Space, Badge } from 'antd';
-import { WarningOutlined, ExclamationCircleOutlined, ClockCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { Card, Typography, Table } from 'antd';
+import { WarningOutlined, ExclamationCircleOutlined, ClockCircleOutlined, CloseCircleOutlined, AlertOutlined } from '@ant-design/icons';
 import api from '../services/api';
+import { getStockTypeLabel } from '../utils/stockTypeMaster';
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
 const AlertSection = ({ uploadId, alertSummary, filters }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Fetch only items that are problematic (status: CRITICAL or WARNING)
   const fetchAlertItems = async () => {
     if (!uploadId) return;
     setLoading(true);
@@ -17,9 +17,9 @@ const AlertSection = ({ uploadId, alertSummary, filters }) => {
       const res = await api.get('/monitoring', {
         params: {
           upload_id: uploadId,
-          limit: 10,
+          limit: 8,
           page: 1,
-          status: 'CRITICAL', // we can prioritize critical first, or just rely on default sort if backend sorts by severity
+          status: 'CRITICAL',
           sortBy: 'days_stock',
           sortOrder: 'ASC',
           ...filters
@@ -42,94 +42,172 @@ const AlertSection = ({ uploadId, alertSummary, filters }) => {
   const totalAlerts = (alertSummary?.critical || 0) + (alertSummary?.lowStock || 0) + (alertSummary?.overStock || 0) + (alertSummary?.deadStock || 0);
 
   const columns = [
-    { title: 'Item Code', dataIndex: ['item', 'stock_code'], render: t => <Text strong>{t}</Text> },
-    { title: 'Item Name', dataIndex: ['item', 'item_name'], ellipsis: true },
-    { title: 'Kategori', dataIndex: ['item', 'stock_class'] },
-    { title: 'Warehouse', dataIndex: ['item', 'warehouse'] },
-    { title: 'Jenis Stok', dataIndex: ['item', 'stock_type'] },
-    { title: 'Stok (Qty)', dataIndex: 'soh_qty', render: v => parseFloat(v).toLocaleString('id-ID') },
-    { title: 'Days of Stock', dataIndex: 'days_stock', render: v => parseFloat(v).toFixed(1) },
-    { title: 'Status', dataIndex: 'status', render: (status) => {
-      let color = 'red';
-      if (status === 'WARNING') color = 'orange';
-      if (status === 'SAFE') color = 'green';
-      return <Badge color={color} text={<Text type={color === 'red' ? 'danger' : 'warning'}>{status}</Text>} />;
-    }}
+    { 
+      title: 'Item Code', 
+      dataIndex: ['item', 'stock_code'], 
+      key: 'stock_code',
+      render: t => <Text strong style={{ whiteSpace: 'nowrap' }}>{t}</Text> 
+    },
+    { 
+      title: 'Item Name', 
+      dataIndex: ['item', 'item_name'], 
+      key: 'item_name',
+      ellipsis: true, 
+      width: '24%' 
+    },
+    { 
+      title: 'Kategori', 
+      dataIndex: ['item', 'stock_class'], 
+      key: 'stock_class',
+      align: 'center',
+      render: v => v || '-' 
+    },
+    { 
+      title: 'Warehouse', 
+      dataIndex: ['item', 'warehouse'], 
+      key: 'warehouse',
+      align: 'center',
+      render: v => v || '-' 
+    },
+    { 
+      title: 'Jenis Stok', 
+      dataIndex: ['item', 'stock_type'], 
+      key: 'stock_type',
+      render: v => getStockTypeLabel(v) 
+    },
+    { 
+      title: 'Stok (Qty)', 
+      dataIndex: 'soh_qty', 
+      key: 'soh_qty',
+      align: 'right',
+      render: v => <Text strong>{parseFloat(v || 0).toLocaleString('id-ID')}</Text> 
+    },
+    { 
+      title: 'Days of Stock', 
+      dataIndex: 'days_stock', 
+      key: 'days_stock',
+      align: 'center',
+      render: v => <Text strong>{parseFloat(v || 0).toFixed(1)}</Text> 
+    },
+    { 
+      title: 'Status', 
+      dataIndex: 'status', 
+      key: 'status',
+      align: 'center',
+      render: (status) => {
+        let bg = '#d9363e';
+        let label = 'CRITICAL';
+
+        if (status === 'CRITICAL') {
+          bg = '#d9363e';
+          label = 'CRITICAL';
+        } else if (status === 'WARNING') {
+          bg = '#fa8c16';
+          label = 'WARNING';
+        } else if (status === 'SAFE') {
+          bg = '#00a854';
+          label = 'AMAN';
+        }
+
+        return (
+          <span style={{
+            background: bg,
+            color: '#fff',
+            padding: '4px 10px',
+            borderRadius: '4px',
+            fontWeight: 700,
+            fontSize: '12px',
+            whiteSpace: 'nowrap',
+            display: 'inline-block',
+            textAlign: 'center',
+            minWidth: '80px'
+          }}>
+            {label}
+          </span>
+        );
+      }
+    }
   ];
 
   return (
-    <div style={{ marginTop: 24 }}>
-      <Row gutter={[16, 16]}>
+    <div>
+      {/* 5 Responsive Cards Grid */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+        gap: '12px',
+        marginBottom: '16px'
+      }}>
         {/* Critical Card */}
-        <Col xs={12} sm={12} md={5}>
-          <Card bodyStyle={{ padding: '16px' }} style={{ borderLeft: '4px solid #f5222d' }}>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
-              <CloseCircleOutlined style={{ color: '#f5222d', fontSize: 18, marginRight: 8 }} />
-              <Text type="danger" strong style={{ fontSize: 13 }}>Critical (Stok &lt; 15 Hari)</Text>
-            </div>
-            <Title level={2} style={{ margin: 0, color: '#f5222d' }}>{alertSummary?.critical || 0}</Title>
-            <Text type="secondary" style={{ fontSize: 12 }}>SKU</Text>
-          </Card>
-        </Col>
+        <Card bodyStyle={{ padding: '14px' }} style={{ borderLeft: '4px solid #f5222d' }}>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 6 }}>
+            <CloseCircleOutlined style={{ color: '#f5222d', fontSize: 16, marginRight: 6 }} />
+            <Text type="danger" strong style={{ fontSize: 12, whiteSpace: 'nowrap' }}>Critical (&lt; 15 Hari)</Text>
+          </div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: '#f5222d', lineHeight: 1 }}>
+            {parseFloat(alertSummary?.critical || 0).toLocaleString('id-ID')}
+          </div>
+          <Text type="secondary" style={{ fontSize: 11, marginTop: 4, display: 'block' }}>SKU</Text>
+        </Card>
 
         {/* Low Stock Card */}
-        <Col xs={12} sm={12} md={5}>
-          <Card bodyStyle={{ padding: '16px' }} style={{ borderLeft: '4px solid #faad14' }}>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
-              <WarningOutlined style={{ color: '#faad14', fontSize: 18, marginRight: 8 }} />
-              <Text type="warning" strong style={{ fontSize: 13, color: '#faad14' }}>Low Stock (&lt; Safety Stock)</Text>
-            </div>
-            <Title level={2} style={{ margin: 0, color: '#faad14' }}>{alertSummary?.lowStock || 0}</Title>
-            <Text type="secondary" style={{ fontSize: 12 }}>SKU</Text>
-          </Card>
-        </Col>
+        <Card bodyStyle={{ padding: '14px' }} style={{ borderLeft: '4px solid #faad14' }}>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 6 }}>
+            <WarningOutlined style={{ color: '#faad14', fontSize: 16, marginRight: 6 }} />
+            <Text type="warning" strong style={{ fontSize: 12, color: '#faad14', whiteSpace: 'nowrap' }}>Low Stock (&lt; ROP)</Text>
+          </div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: '#faad14', lineHeight: 1 }}>
+            {parseFloat(alertSummary?.lowStock || 0).toLocaleString('id-ID')}
+          </div>
+          <Text type="secondary" style={{ fontSize: 11, marginTop: 4, display: 'block' }}>SKU</Text>
+        </Card>
 
         {/* Overstock Card */}
-        <Col xs={12} sm={12} md={5}>
-          <Card bodyStyle={{ padding: '16px' }} style={{ borderLeft: '4px solid #fa8c16' }}>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
-              <ExclamationCircleOutlined style={{ color: '#fa8c16', fontSize: 18, marginRight: 8 }} />
-              <Text strong style={{ fontSize: 13, color: '#fa8c16' }}>Overstock (&gt; 90 Hari)</Text>
-            </div>
-            <Title level={2} style={{ margin: 0, color: '#fa8c16' }}>{alertSummary?.overStock || 0}</Title>
-            <Text type="secondary" style={{ fontSize: 12 }}>SKU</Text>
-          </Card>
-        </Col>
+        <Card bodyStyle={{ padding: '14px' }} style={{ borderLeft: '4px solid #fa8c16' }}>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 6 }}>
+            <ExclamationCircleOutlined style={{ color: '#fa8c16', fontSize: 16, marginRight: 6 }} />
+            <Text strong style={{ fontSize: 12, color: '#fa8c16', whiteSpace: 'nowrap' }}>Overstock (&gt; 90 Hari)</Text>
+          </div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: '#fa8c16', lineHeight: 1 }}>
+            {parseFloat(alertSummary?.overStock || 0).toLocaleString('id-ID')}
+          </div>
+          <Text type="secondary" style={{ fontSize: 11, marginTop: 4, display: 'block' }}>SKU</Text>
+        </Card>
 
         {/* Dead Stock Card */}
-        <Col xs={12} sm={12} md={5}>
-          <Card bodyStyle={{ padding: '16px' }} style={{ borderLeft: '4px solid #722ed1' }}>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
-              <ClockCircleOutlined style={{ color: '#722ed1', fontSize: 18, marginRight: 8 }} />
-              <Text strong style={{ fontSize: 13, color: '#722ed1' }}>Dead Stock (&gt; 180 Hari)</Text>
-            </div>
-            <Title level={2} style={{ margin: 0, color: '#722ed1' }}>{alertSummary?.deadStock || 0}</Title>
-            <Text type="secondary" style={{ fontSize: 12 }}>SKU</Text>
-          </Card>
-        </Col>
+        <Card bodyStyle={{ padding: '14px' }} style={{ borderLeft: '4px solid #722ed1' }}>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 6 }}>
+            <ClockCircleOutlined style={{ color: '#722ed1', fontSize: 16, marginRight: 6 }} />
+            <Text strong style={{ fontSize: 12, color: '#722ed1', whiteSpace: 'nowrap' }}>Dead Stock (&gt; 180 Hari)</Text>
+          </div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: '#722ed1', lineHeight: 1 }}>
+            {parseFloat(alertSummary?.deadStock || 0).toLocaleString('id-ID')}
+          </div>
+          <Text type="secondary" style={{ fontSize: 11, marginTop: 4, display: 'block' }}>SKU</Text>
+        </Card>
 
         {/* Total Card */}
-        <Col xs={24} sm={24} md={4}>
-          <Card bodyStyle={{ padding: '16px' }} style={{ borderLeft: '4px solid #1890ff', textAlign: 'center' }}>
-            <Text strong style={{ fontSize: 13, color: '#1890ff', display: 'block', marginBottom: 8 }}>Total Alerts</Text>
-            <Title level={2} style={{ margin: 0, color: '#1890ff' }}>{totalAlerts}</Title>
-            <Text type="secondary" style={{ fontSize: 12 }}>SKU</Text>
-          </Card>
-        </Col>
-      </Row>
+        <Card bodyStyle={{ padding: '14px' }} style={{ borderLeft: '4px solid #1890ff' }}>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 6 }}>
+            <AlertOutlined style={{ color: '#1890ff', fontSize: 16, marginRight: 6 }} />
+            <Text strong style={{ fontSize: 12, color: '#1890ff', whiteSpace: 'nowrap' }}>Total Alerts</Text>
+          </div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: '#1890ff', lineHeight: 1 }}>
+            {parseFloat(totalAlerts || 0).toLocaleString('id-ID')}
+          </div>
+          <Text type="secondary" style={{ fontSize: 11, marginTop: 4, display: 'block' }}>SKU</Text>
+        </Card>
+      </div>
 
       <Table 
         columns={columns} 
         dataSource={data} 
         rowKey="id" 
-        size="small" 
+        size="middle" 
         pagination={false} 
         loading={loading}
-        style={{ marginTop: 16 }}
+        scroll={{ x: 'max-content' }}
       />
-      <div style={{ textAlign: 'center', marginTop: 12 }}>
-        <a href="/monitoring" style={{ fontSize: 13 }}>Lihat Semua &gt;</a>
-      </div>
     </div>
   );
 };

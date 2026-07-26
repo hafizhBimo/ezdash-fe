@@ -17,25 +17,33 @@ const StockTypeDistributionChart = ({ data }) => {
         return `<b>${params.name}</b><br/>Total SOH Qty: <b>${val}</b> (${params.percent}%)`;
       } 
     },
-    legend: { show: false },
-    color: ['#1890ff', '#13c2c2', '#52c41a', '#faad14', '#f5222d', '#722ed1', '#eb2f96', '#2f54eb', '#fa8c16', '#fa541c', '#a0d911'],
+    legend: { 
+      show: true, 
+      type: 'scroll',
+      orient: 'vertical', 
+      right: 0, 
+      top: 'middle', 
+      textStyle: { fontSize: 11 },
+      formatter: (name) => name.length > 20 ? name.substring(0, 20) + '...' : name
+    },
+    color: ['#1890ff', '#13c2c2', '#52c41a', '#faad14', '#f5222d', '#722ed1', '#eb2f96', '#2f54eb', '#fa8c16', '#fa541c', '#a0d911', '#1890ff', '#722ed1'],
     series: [{
       name: 'Stock Type',
       type: 'pie',
-      radius: ['38%', '65%'],
+      radius: ['38%', '68%'],
+      center: ['30%', '50%'],
       avoidLabelOverlap: true,
+      minAngle: 3,
       itemStyle: { borderRadius: 4, borderColor: '#fff', borderWidth: 1 },
-      label: { show: true, position: 'outside', formatter: '{b}: {d}%', fontSize: 11 },
+      label: { show: false },
+      labelLine: { show: false },
       data: chartData
     }]
   };
 
   return (
-    <div className="chart-panel">
-      <div className="chart-title">Distribusi Stock Type (Berdasarkan Qty)</div>
-      <div style={{ height: '300px' }}>
-        <ReactECharts option={option} style={{ height: '100%', width: '100%' }} />
-      </div>
+    <div style={{ height: '300px', width: '100%' }}>
+      <ReactECharts option={option} style={{ height: '100%', width: '100%' }} />
     </div>
   );
 };
