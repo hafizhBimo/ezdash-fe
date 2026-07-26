@@ -2,21 +2,34 @@ import React from 'react';
 import ReactECharts from 'echarts-for-react';
 
 const CoverageChart = ({ data }) => {
+  // Map specific colors per item name or statusKey
+  const colorMap = {
+    'No Usage (0 Hari)': '#8c8c8c',
+    '<= 15 Hari (Critical)': '#f5222d',
+    '15 - 30 Hari (Warning)': '#faad14',
+    '> 30 Hari (Stock Safe)': '#52c41a'
+  };
+
+  const chartData = (data || []).map(d => ({
+    name: d.name,
+    value: d.value,
+    itemStyle: { color: colorMap[d.name] || d.color }
+  }));
+
   const option = {
-    tooltip: { trigger: 'item', formatter: '{a} <br/>{b} : {c} ({d}%)' },
+    tooltip: { trigger: 'item', formatter: '{a} <br/>{b} : <b>{c} SKUs</b> ({d}%)' },
     legend: {
       orient: 'vertical',
-      right: '5%',
+      right: '2%',
       top: 'middle',
       icon: 'circle'
     },
-    color: ['#52c41a', '#faad14', '#f5222d'], // Aman, Warning, Critical
     series: [
       {
-        name: 'Days of Stock Coverage',
+        name: 'Coverage (Days of Stock)',
         type: 'pie',
-        radius: ['40%', '70%'],
-        center: ['35%', '50%'],
+        radius: ['38%', '68%'],
+        center: ['38%', '50%'],
         avoidLabelOverlap: false,
         itemStyle: {
           borderRadius: 5,
@@ -25,10 +38,7 @@ const CoverageChart = ({ data }) => {
         },
         label: { show: false },
         labelLine: { show: false },
-        data: data.map(d => ({
-          name: d.name,
-          value: d.value
-        }))
+        data: chartData
       }
     ]
   };

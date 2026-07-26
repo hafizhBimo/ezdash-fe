@@ -2,9 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Card, Table, Input, Select, Space, Button, Typography, Row, Col } from 'antd';
 import { SearchOutlined, ReloadOutlined, CalendarOutlined } from '@ant-design/icons';
 import api from '../services/api';
+import { getStockTypeLabel } from '../utils/stockTypeMaster';
 
 const { Title, Paragraph, Text } = Typography;
 const { Option } = Select;
+
+const formatRupiah = (val) => {
+  return 'Rp ' + parseFloat(val || 0).toLocaleString('id-ID');
+};
 
 const MonitoringPage = () => {
   const [loading, setLoading] = useState(false);
@@ -97,8 +102,6 @@ const MonitoringPage = () => {
     if (pagination.pageSize !== pageSize) setPageSize(pagination.pageSize);
 
     if (sorter.field) {
-      // If sorter.field is an array (nested properties e.g., ['item', 'stock_code']),
-      // extract the last element which represents the actual database column name.
       const sortField = Array.isArray(sorter.field) 
         ? sorter.field[sorter.field.length - 1] 
         : sorter.field;
@@ -124,22 +127,30 @@ const MonitoringPage = () => {
   };
 
   // ----------------------------------------------------
-  // Table Columns
+  // Table Columns (Matching Google Sheet Specification)
+  // Stockcode | Part Number | Item Name | Warehouse | Mnemonic | Stock Class | Equipment | UOI | Price | SOH | Amount | Stock Type
   // ----------------------------------------------------
   const columns = [
     {
-      title: 'Stock Code',
+      title: 'Stockcode',
       dataIndex: ['item', 'stock_code'],
       key: 'stock_code',
       sorter: true,
       render: (text) => <Text strong>{text}</Text>
     },
     {
+      title: 'Part Number',
+      dataIndex: ['item', 'part_number'],
+      key: 'part_number',
+      sorter: true,
+      render: (val) => val || '-'
+    },
+    {
       title: 'Item Name',
       dataIndex: ['item', 'item_name'],
       key: 'item_name',
       sorter: true,
-      width: '25%'
+      width: '20%'
     },
     {
       title: 'Warehouse',
@@ -148,81 +159,60 @@ const MonitoringPage = () => {
       sorter: true
     },
     {
-      title: 'Vendor',
-      dataIndex: ['item', 'vendor'],
-      key: 'vendor',
+      title: 'Mnemonic',
+      dataIndex: ['item', 'mnemonic'],
+      key: 'mnemonic',
       sorter: true,
       render: (val) => val || '-'
     },
     {
-      title: 'Type',
-      dataIndex: ['item', 'stock_type'],
-      key: 'stock_type',
-      sorter: true
-    },
-    {
-      title: 'Class',
+      title: 'Stock Class',
       dataIndex: ['item', 'stock_class'],
       key: 'stock_class',
-      sorter: true
+      sorter: true,
+      render: (val) => val || '-'
+    },
+    {
+      title: 'Equipment',
+      dataIndex: ['item', 'equipment'],
+      key: 'equipment',
+      sorter: true,
+      render: (val) => val || '-'
+    },
+    {
+      title: 'UOI',
+      dataIndex: ['item', 'uom'],
+      key: 'uom',
+      sorter: true,
+      render: (val) => val || '-'
+    },
+    {
+      title: 'Price',
+      dataIndex: ['item', 'price'],
+      key: 'price',
+      sorter: true,
+      render: (val) => formatRupiah(val)
     },
     {
       title: 'SOH',
       dataIndex: 'soh_qty',
       key: 'soh_qty',
       sorter: true,
-      render: (val) => parseFloat(val).toLocaleString('id-ID')
+      render: (val) => <Text strong>{parseFloat(val || 0).toLocaleString('id-ID')}</Text>
     },
     {
-      title: 'COH',
-      dataIndex: 'coh_qty',
-      key: 'coh_qty',
+      title: 'Amount',
+      dataIndex: 'soh_amount',
+      key: 'soh_amount',
       sorter: true,
-      render: (val) => parseFloat(val).toLocaleString('id-ID')
+      render: (val, record) => formatRupiah(val || (record.soh_qty * record.item?.price))
     },
     {
-      title: 'MIN',
-      dataIndex: 'min_qty',
-      key: 'min_qty',
+      title: 'Stock Type',
+      dataIndex: ['item', 'stock_type'],
+      key: 'stock_type',
       sorter: true,
-      render: (val) => parseFloat(val).toLocaleString('id-ID')
-    },
-    {
-      title: 'ROP',
-      dataIndex: 'rop_qty',
-      key: 'rop_qty',
-      sorter: true,
-      render: (val) => parseFloat(val).toLocaleString('id-ID')
-    },
-    {
-      title: 'Days of Stock',
-      dataIndex: 'days_stock',
-      key: 'days_stock',
-      sorter: true,
-      render: (val) => <Text strong>{parseFloat(val).toFixed(1)}</Text>
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      sorter: true,
-      render: (status) => {
-        let badgeClass = 'status-badge no_stock';
-        let label = 'NO STOCK';
-
-        if (status === 'SAFE') {
-          badgeClass = 'status-badge safe';
-          label = 'AMAN';
-        } else if (status === 'WARNING') {
-          badgeClass = 'status-badge warning';
-          label = 'WARNING';
-        } else if (status === 'CRITICAL') {
-          badgeClass = 'status-badge critical';
-          label = 'CRITICAL';
-        }
-
-        return <span className={badgeClass}>{label}</span>;
-      }
+      render: (val) => getStockTypeLabel(val)
     }
   ];
 
@@ -259,12 +249,12 @@ const MonitoringPage = () => {
             {/* Search Input */}
             <Col xs={24} md={12} lg={14} xl={16} style={{ display: 'flex', justifyContent: 'flex-end' }}>
               <Input
-                placeholder="Cari Nama Barang / Stock Code..."
+                placeholder="Cari Part Number / Stock Code / Item Name..."
                 prefix={<SearchOutlined />}
                 allowClear
                 onPressEnter={(e) => handleSearch(e.target.value)}
                 onChange={(e) => !e.target.value && handleSearch('')}
-                style={{ width: '100%', maxWidth: '360px' }}
+                style={{ width: '100%', maxWidth: '380px' }}
               />
             </Col>
           </Row>

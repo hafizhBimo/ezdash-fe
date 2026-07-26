@@ -92,7 +92,7 @@ const MainLayout = ({ children }) => {
       },
       {
         key: '/monitoring',
-        icon: <HomeOutlined />,
+        icon: <TableOutlined />,
         label: <Link to="/monitoring" onClick={() => setDrawerVisible(false)}>Stok Gudang</Link>
       },
       {
@@ -109,21 +109,6 @@ const MainLayout = ({ children }) => {
         key: '/coverage',
         icon: <ClockCircleOutlined />,
         label: <Link to="/coverage" onClick={() => setDrawerVisible(false)}>Coverage (Days of Stock)</Link>
-      },
-      {
-        key: '/alert-exception',
-        icon: <WarningOutlined />,
-        label: <Link to="/alert-exception" onClick={() => setDrawerVisible(false)}>Alert & Exception</Link>
-      },
-      {
-        key: '/dead-stock',
-        icon: <DeleteOutlined />,
-        label: <Link to="/dead-stock" onClick={() => setDrawerVisible(false)}>Dead Stock / Overstock</Link>
-      },
-      {
-        key: '/laporan-detail',
-        icon: <FileTextOutlined />,
-        label: <Link to="/laporan-detail" onClick={() => setDrawerVisible(false)}>Laporan Detail</Link>
       }
     ];
 
@@ -156,7 +141,7 @@ const MainLayout = ({ children }) => {
           collapsedWidth={64}
           collapsed={collapsed}
           style={{
-            background: '#013a77', // Matched with the mockup deep blue
+            background: '#013a77', // Matched with deep blue
             position: 'sticky',
             top: 0,
             height: '100vh',
@@ -180,9 +165,22 @@ const MainLayout = ({ children }) => {
             }}
           >
             {!collapsed && (
-              <span style={{ color: '#fff', fontWeight: 700, fontSize: 16, letterSpacing: 1, whiteSpace: 'nowrap' }}>
-                EZDASH
-              </span>
+              <Space align="center" size={8}>
+                <div style={{
+                  width: 32, height: 32, borderRadius: 6, background: '#fff',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#096dd9', fontWeight: 800, fontSize: 16
+                }}>
+                  EZ
+                </div>
+                <div>
+                  <div style={{ color: '#fff', fontWeight: 800, fontSize: 15, letterSpacing: 0.5, lineHeight: 1.1 }}>
+                    EZDASH
+                  </div>
+                  <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: 10, fontWeight: 500 }}>
+                    Inventory System
+                  </div>
+                </div>
+              </Space>
             )}
             <Button
               type="text"

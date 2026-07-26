@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Card, Table, Input, Select, Space, Button, Typography, Row, Col } from 'antd';
 import { SearchOutlined, ReloadOutlined, CalendarOutlined } from '@ant-design/icons';
 import api from '../services/api';
+import { getStockTypeLabel } from '../utils/stockTypeMaster';
+import UsageTrendChart from '../components/UsageTrendChart';
 
 const { Title, Paragraph, Text } = Typography;
 const { Option } = Select;
@@ -25,6 +27,9 @@ const PemakaianPage = () => {
   const [vendor, setVendor] = useState(undefined);
   const [stockType, setStockType] = useState(undefined);
   const [stockClass, setStockClass] = useState(undefined);
+
+  // Trends
+  const [trends, setTrends] = useState({ usage: [] });
 
   // Fetch upload snapshots
   const fetchUploadHistory = async () => {
@@ -58,11 +63,17 @@ const PemakaianPage = () => {
         sortOrder
       };
 
-      const response = await api.get('/usages', { params });
-      const { rows, count } = response.data.data;
-      
+      const [usageRes, chartsRes] = await Promise.all([
+        api.get('/usages', { params }),
+        api.get('/dashboard/charts', { params: { upload_id: selectedUpload } })
+      ]);
+
+      const { rows, count } = usageRes.data.data;
       setData(rows);
       setTotalCount(count);
+      if (chartsRes.data.data.trends) {
+        setTrends(chartsRes.data.data.trends);
+      }
     } catch (error) {
       console.error('Failed to load usage data:', error);
     } finally {
@@ -117,11 +128,18 @@ const PemakaianPage = () => {
       render: (text) => <Text strong>{text}</Text>
     },
     {
+      title: 'Part Number',
+      dataIndex: ['item', 'part_number'],
+      key: 'part_number',
+      sorter: true,
+      render: (val) => val || '-'
+    },
+    {
       title: 'Item Name',
       dataIndex: ['item', 'item_name'],
       key: 'item_name',
       sorter: true,
-      width: '25%'
+      width: '22%'
     },
     {
       title: 'Warehouse',
@@ -130,10 +148,11 @@ const PemakaianPage = () => {
       sorter: true
     },
     {
-      title: 'Type',
+      title: 'Stock Type',
       dataIndex: ['item', 'stock_type'],
       key: 'stock_type',
-      sorter: true
+      sorter: true,
+      render: (val) => getStockTypeLabel(val)
     },
     {
       title: 'Class',
@@ -146,14 +165,14 @@ const PemakaianPage = () => {
       dataIndex: 'usage_qty',
       key: 'usage_qty',
       sorter: true,
-      render: (val) => <Text strong style={{ color: '#eb2f96' }}>{parseFloat(val).toLocaleString('id-ID')}</Text>
+      render: (val) => <Text strong style={{ color: '#eb2f96' }}>{parseFloat(val || 0).toLocaleString('id-ID')}</Text>
     },
     {
       title: 'Unit Price (Rp)',
       dataIndex: ['item', 'price'],
       key: 'price',
       sorter: true,
-      render: (val) => parseFloat(val || 0).toLocaleString('id-ID')
+      render: (val) => 'Rp ' + parseFloat(val || 0).toLocaleString('id-ID')
     },
     {
       title: 'Usage Amount (Rp)',
@@ -161,7 +180,7 @@ const PemakaianPage = () => {
       render: (_, record) => {
         const qty = parseFloat(record.usage_qty || 0);
         const price = parseFloat(record.item?.price || 0);
-        return <Text strong>{(qty * price).toLocaleString('id-ID')}</Text>;
+        return <Text strong style={{ color: '#722ed1' }}>{'Rp ' + (qty * price).toLocaleString('id-ID')}</Text>;
       }
     }
   ];
@@ -170,8 +189,13 @@ const PemakaianPage = () => {
     <Space direction="vertical" size="large" style={{ width: '100%' }}>
       <div>
         <Title level={2}>Data Pemakaian Barang</Title>
-        <Paragraph>Laporan jumlah dan nilai barang yang telah digunakan/dikeluarkan.</Paragraph>
+        <Paragraph>Laporan jumlah dan nilai barang yang telah digunakan/dikeluarkan (Periode 6 Bulan Terakhir).</Paragraph>
       </div>
+
+      {/* Usage Trend Line Chart (6 Months) */}
+      <Card title="DIAGRAM PEMAKAIAN BULANAN (6 BULAN TERAKHIR)" bordered={false} className="glass-card">
+        <UsageTrendChart trends={trends} />
+      </Card>
 
       <Card className="glass-card">
         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
@@ -196,30 +220,18 @@ const PemakaianPage = () => {
             
             <Col xs={24} md={12} lg={14} xl={16} style={{ display: 'flex', justifyContent: 'flex-end' }}>
               <Input
-                placeholder="Cari Nama Barang / Stock Code..."
+                placeholder="Cari Part Number / Stock Code / Item Name..."
                 prefix={<SearchOutlined />}
                 allowClear
                 onPressEnter={(e) => handleSearch(e.target.value)}
                 onChange={(e) => !e.target.value && handleSearch('')}
-                style={{ width: '100%', maxWidth: '360px' }}
+                style={{ width: '100%', maxWidth: '380px' }}
               />
             </Col>
           </Row>
 
           <Row gutter={[8, 8]} justify="start">
-            <Col xs={12} sm={6} md={5}>
-              <Select placeholder="Warehouse" value={warehouse} onChange={setWarehouse} allowClear style={{ width: '100%' }}>
-                {/* Simplified filter options since they aren't generated by usage service yet */}
-                <Option value="WH1">WH1</Option>
-              </Select>
-            </Col>
-            <Col xs={12} sm={6} md={5}>
-              <Select placeholder="Class" value={stockClass} onChange={setStockClass} allowClear style={{ width: '100%' }}>
-                <Option value="C">C</Option>
-                <Option value="M">M</Option>
-              </Select>
-            </Col>
-            <Col xs={12} sm={12} md={3} style={{ display: 'flex', gap: '8px' }}>
+            <Col xs={12} sm={6} md={3} style={{ display: 'flex', gap: '8px' }}>
               <Button onClick={handleResetFilters} style={{ flex: 1 }}>Reset</Button>
               <Button type="primary" icon={<ReloadOutlined />} onClick={fetchUsageData} loading={loading} />
             </Col>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Typography } from 'antd';
 import api from '../services/api';
+import { getStockTypeLabel } from '../utils/stockTypeMaster';
 
 const { Text } = Typography;
 
@@ -15,7 +16,7 @@ const MiniMonitoringTable = ({ uploadId, filters }) => {
       const res = await api.get('/monitoring', {
         params: {
           upload_id: uploadId,
-          limit: 5,
+          limit: 10,
           page: 1,
           ...filters
         }
@@ -34,50 +35,124 @@ const MiniMonitoringTable = ({ uploadId, filters }) => {
     fetchPreview();
   }, [uploadId, filters]);
 
+  // Columns matching exact screenshot:
+  // Stock Code | Item Name | Stock Type | Stock Class | SOH (Qty) | MIN (Qty) | ROP (Qty) | ROQ (Qty) | Days of Stock | Status
   const columns = [
-    { title: 'Item Code', dataIndex: ['item', 'stock_code'], render: t => <Text strong>{t}</Text> },
-    { title: 'Item Name', dataIndex: ['item', 'item_name'], ellipsis: true },
-    { title: 'Warehouse', dataIndex: ['item', 'warehouse'] },
-    { title: 'Stok On Hand (Qty)', dataIndex: 'soh_qty', render: v => parseFloat(v).toLocaleString('id-ID') },
-    { title: 'Safety Stock (Qty)', dataIndex: 'rop_qty', render: v => parseFloat(v).toLocaleString('id-ID') },
-    { 
-      title: 'Selisih (Qty)', 
-      key: 'selisih',
-      render: (_, record) => {
-        const selisih = parseFloat(record.soh_qty) - parseFloat(record.rop_qty);
-        return <Text type={selisih < 0 ? 'danger' : 'success'} strong>{selisih.toLocaleString('id-ID')}</Text>;
-      } 
+    {
+      title: 'Stock Code',
+      dataIndex: ['item', 'stock_code'],
+      key: 'stock_code',
+      render: (t) => <Text strong>{t}</Text>
     },
-    { 
-      title: 'Status', 
+    {
+      title: 'Item Name',
+      dataIndex: ['item', 'item_name'],
+      key: 'item_name',
+      ellipsis: true,
+      width: '20%'
+    },
+    {
+      title: 'Stock Type',
+      dataIndex: ['item', 'stock_type'],
+      key: 'stock_type',
+      render: (val) => getStockTypeLabel(val)
+    },
+    {
+      title: 'Stock Class',
+      dataIndex: ['item', 'stock_class'],
+      key: 'stock_class',
+      align: 'center',
+      render: (val) => val || '-'
+    },
+    {
+      title: 'SOH (Qty)',
+      dataIndex: 'soh_qty',
+      key: 'soh_qty',
+      align: 'right',
+      render: (val) => <Text strong>{parseFloat(val || 0).toLocaleString('id-ID')}</Text>
+    },
+    {
+      title: 'MIN (Qty)',
+      dataIndex: 'min_qty',
+      key: 'min_qty',
+      align: 'right',
+      render: (val) => parseFloat(val || 0).toLocaleString('id-ID')
+    },
+    {
+      title: 'ROP (Qty)',
+      dataIndex: 'rop_qty',
+      key: 'rop_qty',
+      align: 'right',
+      render: (val) => parseFloat(val || 0).toLocaleString('id-ID')
+    },
+    {
+      title: 'ROQ (Qty)',
+      dataIndex: 'roq_qty',
+      key: 'roq_qty',
+      align: 'right',
+      render: (val) => parseFloat(val || 0).toLocaleString('id-ID')
+    },
+    {
+      title: 'Days of Stock',
+      dataIndex: 'days_stock',
+      key: 'days_stock',
+      align: 'center',
+      render: (val) => <Text strong>{parseFloat(val || 0).toFixed(0)}</Text>
+    },
+    {
+      title: 'Status',
       dataIndex: 'status',
+      key: 'status',
+      align: 'center',
       render: (status) => {
-        let color = '#d9d9d9', bg = '#fafafa', text = 'NO STOCK';
-        if (status === 'SAFE') { color = '#52c41a'; bg = '#f6ffed'; text = 'Aman'; }
-        else if (status === 'WARNING') { color = '#faad14'; bg = '#fffbe6'; text = 'Low Stock'; }
-        else if (status === 'CRITICAL') { color = '#f5222d'; bg = '#fff1f0'; text = 'Critical'; }
-        
+        let bg = '#00a854';
+        let label = 'Aman';
+
+        if (status === 'SAFE') {
+          bg = '#00a854';
+          label = 'Aman';
+        } else if (status === 'WARNING') {
+          bg = '#fa8c16';
+          label = 'Warning';
+        } else if (status === 'CRITICAL') {
+          bg = '#d9363e';
+          label = 'Critical';
+        } else {
+          bg = '#8c8c8c';
+          label = 'No Stock';
+        }
+
         return (
-          <span style={{ 
-            color, background: bg, border: `1px solid ${color}`, 
-            padding: '2px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 600 
-          }}>
-            {text}
-          </span>
+          <div
+            style={{
+              background: bg,
+              color: '#fff',
+              padding: '6px 16px',
+              borderRadius: '4px',
+              fontWeight: 700,
+              fontSize: '13px',
+              textAlign: 'center',
+              display: 'inline-block',
+              minWidth: '85px'
+            }}
+          >
+            {label}
+          </div>
         );
       }
     }
   ];
 
   return (
-    <Table 
-      columns={columns} 
-      dataSource={data} 
-      rowKey="id" 
-      size="small" 
-      pagination={false} 
+    <Table
+      columns={columns}
+      dataSource={data}
+      rowKey="id"
+      size="middle"
+      pagination={false}
       loading={loading}
-      style={{ marginTop: 16 }}
+      style={{ marginTop: 8 }}
+      scroll={{ x: 'max-content' }}
     />
   );
 };

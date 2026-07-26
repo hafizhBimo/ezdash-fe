@@ -230,27 +230,38 @@ const DashboardPage = () => {
           </Col>
         </Row>
 
-        {/* ROW 3: MONITORING & DONUT CHARTS */}
+        {/* ROW 3: COVERAGE, STOCK TYPE & CONSIGNMENT VENDOR CHARTS */}
         <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
-          <Col xs={24} md={12}>
-            <Card title="MONITORING STOK GUDANG" bordered={false} className="glass-card" style={{ height: '100%' }}>
-              <MiniMonitoringTable 
-                uploadId={selectedUpload}
-                filters={{ warehouse, vendor, stock_type: stockType, stock_class: stockClass }}
-              />
-              <div style={{ textAlign: 'center', marginTop: 12 }}>
-                <a href="/monitoring" style={{ fontSize: 13 }}>Lihat Semua &gt;</a>
-              </div>
-            </Card>
-          </Col>
-          <Col xs={24} md={6}>
+          <Col xs={24} md={8}>
             <Card title="COVERAGE (DAYS OF STOCK)" bordered={false} className="glass-card" style={{ height: '100%' }}>
               <CoverageChart data={charts.coverageDistribution} />
             </Card>
           </Col>
-          <Col xs={24} md={6}>
+          <Col xs={24} md={8}>
+            <Card title="STOCK TYPE (QTY)" bordered={false} className="glass-card" style={{ height: '100%' }}>
+              <StockTypeDistributionChart data={charts.stockTypeDistribution} />
+            </Card>
+          </Col>
+          <Col xs={24} md={8}>
             <Card title="STOK CONSIGNMENT PER VENDOR" bordered={false} className="glass-card" style={{ height: '100%' }}>
               <VendorConsignmentChart data={charts.vendorConsignment} />
+            </Card>
+          </Col>
+        </Row>
+
+        {/* ROW 4: FULL WIDTH MONITORING STOK GUDANG TABLE */}
+        <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+          <Col span={24}>
+            <Card 
+              title="MONITORING STOK GUDANG" 
+              extra={<a href="/monitoring" style={{ fontSize: 13, fontWeight: 600 }}>Lihat Semua &gt;</a>} 
+              bordered={false} 
+              className="glass-card"
+            >
+              <MiniMonitoringTable 
+                uploadId={selectedUpload}
+                filters={{ warehouse, vendor, stock_type: stockType, stock_class: stockClass }}
+              />
             </Card>
           </Col>
         </Row>
