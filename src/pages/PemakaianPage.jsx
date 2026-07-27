@@ -43,7 +43,7 @@ const PemakaianPage = () => {
       const response = await api.get('/upload/history');
       const successfulUploads = response.data.data.filter(u => u.status === 'SUCCESS');
       setUploads(successfulUploads);
-      
+
       if (successfulUploads.length > 0 && !selectedUpload) {
         setSelectedUpload(successfulUploads[0].id);
       }
@@ -71,14 +71,16 @@ const PemakaianPage = () => {
 
       const [usageRes, chartsRes] = await Promise.all([
         api.get('/usages', { params }),
-        api.get('/dashboard/charts', { params: { 
-          upload_id: selectedUpload,
-          search: searchText || undefined,
-          warehouse: warehouse || undefined,
-          vendor: vendor || undefined,
-          stock_type: stockType || undefined,
-          stock_class: stockClass || undefined
-        }})
+        api.get('/dashboard/charts', {
+          params: {
+            upload_id: selectedUpload,
+            search: searchText || undefined,
+            warehouse: warehouse || undefined,
+            vendor: vendor || undefined,
+            stock_type: stockType || undefined,
+            stock_class: stockClass || undefined
+          }
+        })
       ]);
 
       if (usageRes.data?.status === 'success') {
@@ -119,10 +121,10 @@ const PemakaianPage = () => {
     if (pagination.pageSize !== pageSize) setPageSize(pagination.pageSize);
 
     if (sorter.field) {
-      const sortField = Array.isArray(sorter.field) 
-        ? sorter.field[sorter.field.length - 1] 
+      const sortField = Array.isArray(sorter.field)
+        ? sorter.field[sorter.field.length - 1]
         : sorter.field;
-      
+
       setSortBy(sortField);
       setSortOrder(sorter.order === 'descend' ? 'DESC' : 'ASC');
     }
@@ -145,7 +147,7 @@ const PemakaianPage = () => {
   // Export CSV functionality
   const handleExportCSV = () => {
     if (!data || data.length === 0) return;
-    
+
     const headers = [
       'No', 'Stock Code', 'Part Number', 'Nama Item', 'Warehouse', 'Jenis Stok', 'Kategori', 'Vendor', 'Qty Pemakaian', 'Harga Satuan (Rp)', 'Nilai Pemakaian (Rp)'
     ];
@@ -278,9 +280,9 @@ const PemakaianPage = () => {
         <Row gutter={[16, 16]} align="middle">
           <Col xs={24} sm={12} md={6}>
             <Text strong style={{ fontSize: 12, display: 'block', marginBottom: 4 }}>Periode Excel Upload</Text>
-            <Select 
-              value={selectedUpload} 
-              style={{ width: '100%' }} 
+            <Select
+              value={selectedUpload}
+              style={{ width: '100%' }}
               onChange={val => { setSelectedUpload(val); setPage(1); }}
               placeholder="Pilih File Upload"
             >
@@ -370,14 +372,14 @@ const PemakaianPage = () => {
         </Row>
       </Card>
 
-      <Card 
+      <Card
         title={
           <Space>
             <LineChartOutlined style={{ color: '#eb2f96' }} />
-            <span>Laporan Detail Pemakaian ({totalCount.toLocaleString('id-ID')} Items)</span>
+            <span>Laporan Detail Pemakaian</span>
           </Space>
-        } 
-        className="glass-card" 
+        }
+        className="glass-card"
         bodyStyle={{ padding: 0 }}
       >
         <Table
