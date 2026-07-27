@@ -14,11 +14,15 @@ import {
   LogoutOutlined,
   MenuOutlined,
   MenuFoldOutlined,
-  MenuUnfoldOutlined
+  MenuUnfoldOutlined,
+  RightOutlined,
+  DatabaseOutlined
 } from '@ant-design/icons';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import api from '../services/api';
+
+import logoImg from '../assets/logo.png';
 
 const { Header, Sider, Content } = Layout;
 const { Text } = Typography;
@@ -109,6 +113,11 @@ const MainLayout = ({ children }) => {
         key: '/coverage',
         icon: <ClockCircleOutlined />,
         label: <Link to="/coverage" onClick={() => setDrawerVisible(false)}>Coverage (Days of Stock)</Link>
+      },
+      {
+        key: '/master-data',
+        icon: <DatabaseOutlined />,
+        label: <Link to="/master-data" onClick={() => setDrawerVisible(false)}>Master Data</Link>
       }
     ];
 
@@ -153,50 +162,85 @@ const MainLayout = ({ children }) => {
           {/* Logo area */}
           <div
             style={{
-              height: 64,
+              height: collapsed ? 64 : 88,
               display: 'flex',
               alignItems: 'center',
               justifyContent: collapsed ? 'center' : 'space-between',
-              padding: collapsed ? '0' : '0 16px',
-              background: 'linear-gradient(135deg, #1890ff, #096dd9)',
+              padding: collapsed ? '0' : '10px 14px',
+              background: '#00254e',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
               overflow: 'hidden',
               transition: 'all 0.2s',
               flexShrink: 0
             }}
           >
-            {!collapsed && (
-              <Space align="center" size={8}>
-                <div style={{
-                  width: 32, height: 32, borderRadius: 6, background: '#fff',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#096dd9', fontWeight: 800, fontSize: 16
-                }}>
-                  EZ
-                </div>
-                <div>
-                  <div style={{ color: '#fff', fontWeight: 800, fontSize: 15, letterSpacing: 0.5, lineHeight: 1.1 }}>
-                    EZDASH
+            {!collapsed ? (
+              <>
+                <Space align="center" size={12}>
+                  <img 
+                    src={logoImg} 
+                    alt="VISTA Logo" 
+                    style={{ height: 58, width: 'auto', objectFit: 'contain', filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.4))' }} 
+                  />
+                  <div>
+                    <div style={{ color: '#fff', fontWeight: 800, fontSize: 16, letterSpacing: 0.6, lineHeight: 1.1 }}>
+                      VISTA
+                    </div>
+                    <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: 10, fontWeight: 600, letterSpacing: 0.5 }}>
+                      SUPPLY CHAIN
+                    </div>
                   </div>
-                  <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: 10, fontWeight: 500 }}>
-                    Inventory System
-                  </div>
-                </div>
-              </Space>
-            )}
-            <Button
-              type="text"
-              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-              onClick={() => setCollapsed(!collapsed)}
-              style={{
-                color: '#fff',
-                fontSize: 16,
-                width: 36,
-                height: 36,
+                </Space>
+                <Button
+                  type="text"
+                  icon={<MenuFoldOutlined />}
+                  onClick={() => setCollapsed(true)}
+                  style={{
+                    color: '#fff',
+                    fontSize: 16,
+                    width: 36,
+                    height: 36,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}
+                />
+              </>
+            ) : (
+              <div style={{
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0
-              }}
-            />
+                justifyContent: 'space-between',
+                width: '100%',
+                padding: '0 6px'
+              }}>
+                <img 
+                  src={logoImg} 
+                  alt="VISTA Logo" 
+                  style={{ height: 28, width: 'auto', objectFit: 'contain', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.4))' }} 
+                />
+                <Tooltip title="Expand Sidebar" placement="right">
+                  <Button
+                    type="text"
+                    size="small"
+                    icon={<RightOutlined style={{ fontSize: 11, color: '#fff' }} />}
+                    onClick={() => setCollapsed(false)}
+                    style={{
+                      width: 22,
+                      height: 22,
+                      padding: 0,
+                      minWidth: 22,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: 4,
+                      background: 'rgba(255, 255, 255, 0.15)'
+                    }}
+                  />
+                </Tooltip>
+              </div>
+            )}
           </div>
 
           <div style={{ flex: 1, overflow: 'auto' }}>
@@ -235,7 +279,10 @@ const MainLayout = ({ children }) => {
       {isMobile && (
         <Drawer
           title={
-            <span style={{ color: '#fff', fontSize: 16, fontWeight: 700 }}>EZDASH</span>
+            <Space align="center" size={8}>
+              <img src={logoImg} alt="VISTA Logo" style={{ height: 32, width: 'auto' }} />
+              <span style={{ color: '#fff', fontSize: 15, fontWeight: 700 }}>VISTA SUPPLY CHAIN</span>
+            </Space>
           }
           placement="left"
           onClose={() => setDrawerVisible(false)}

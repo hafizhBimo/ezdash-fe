@@ -92,7 +92,7 @@ const UsageTrendChart = ({ trends }) => {
 
   return (
     <div style={{ height: '300px', width: '100%' }}>
-      <ReactECharts option={option} style={{ height: '100%', width: '100%' }} />
+      <ReactECharts option={option} notMerge={true} lazyUpdate={true} style={{ height: '100%', width: '100%' }} />
     </div>
   );
 };

@@ -12,6 +12,7 @@ import CoveragePage from './pages/CoveragePage';
 import AlertExceptionPage from './pages/AlertExceptionPage';
 import DeadStockPage from './pages/DeadStockPage';
 import LaporanDetailPage from './pages/LaporanDetailPage';
+import MasterDataPage from './pages/MasterDataPage';
 import SettingsPage from './pages/SettingsPage';
 import UploadHistoryPage from './pages/UploadHistoryPage';
 import './App.css';
@@ -45,6 +46,7 @@ function App() {
             } 
           />
 
+          <Route path="/master-data" element={<PrivateRoute><MainLayout><MasterDataPage /></MainLayout></PrivateRoute>} />
           <Route path="/stok-consignment" element={<PrivateRoute><MainLayout><StokConsignmentPage /></MainLayout></PrivateRoute>} />
           <Route path="/pemakaian" element={<PrivateRoute><MainLayout><PemakaianPage /></MainLayout></PrivateRoute>} />
           <Route path="/coverage" element={<PrivateRoute><MainLayout><CoveragePage /></MainLayout></PrivateRoute>} />

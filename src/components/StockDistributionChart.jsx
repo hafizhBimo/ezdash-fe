@@ -4,7 +4,7 @@ import { Empty } from 'antd';
 
 const StockDistributionChart = ({ data }) => {
   const option = {
-    tooltip: { trigger: 'item', formatter: '{b}: <b>{c} Qty</b> ({d}%)' },
+    tooltip: { trigger: 'item', formatter: '{b}: <b>{c} SKU</b> ({d}%)' },
     legend: { top: 0, left: 'center', icon: 'circle', textStyle: { fontSize: 11 } },
     color: ['#1890ff', '#52c41a'],
     series: [{
@@ -24,7 +24,7 @@ const StockDistributionChart = ({ data }) => {
   return (
     <div style={{ height: '300px', width: '100%' }}>
       {hasData ? (
-        <ReactECharts option={option} style={{ height: '100%', width: '100%' }} />
+        <ReactECharts option={option} notMerge={true} lazyUpdate={true} style={{ height: '100%', width: '100%' }} />
       ) : (
         <Empty description="No Stock Data" style={{ marginTop: 60 }} />
       )}

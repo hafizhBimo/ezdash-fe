@@ -214,7 +214,7 @@ const DashboardPage = () => {
         {/* ROW 2: MAIN CHARTS */}
         <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
           <Col xs={24} lg={6} xl={6}>
-            <Card title="DISTRIBUSI STOK (Qty)" bordered={false} className="glass-card" style={{ height: '100%' }}>
+            <Card title="DISTRIBUSI STOK (SKU)" bordered={false} className="glass-card" style={{ height: '100%' }}>
               <StockDistributionChart data={charts.stockDistribution} />
             </Card>
           </Col>
@@ -280,37 +280,6 @@ const DashboardPage = () => {
                 alertSummary={charts.alertSummary}
                 filters={{ warehouse, vendor, stock_type: stockType, stock_class: stockClass }}
               />
-            </Card>
-          </Col>
-        </Row>
-
-        {/* ROW 6: DEAD STOCK & OVERSTOCK ANALYSIS */}
-        <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
-          <Col span={24}>
-            <Card title="DEAD STOCK / OVERSTOCK ANALYSIS (NILAI)" bordered={false} className="glass-card">
-              <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
-                <Col xs={24} sm={12}>
-                  <div style={{ border: '1px solid #ffccc7', background: '#fff1f0', padding: 16, borderRadius: 8, textAlign: 'center' }}>
-                    <Text type="danger" style={{ fontSize: 12, fontWeight: 600, display: 'block' }}>NILAI DEAD STOCK (&gt; 180 HARI)</Text>
-                    <Title level={3} style={{ color: '#f5222d', margin: '4px 0' }}>
-                      Rp {parseFloat(charts.alertSummary?.deadStockValue || 0).toLocaleString('id-ID')}
-                    </Title>
-                    <Text type="secondary" style={{ fontSize: 12 }}>{charts.alertSummary?.deadStock || 0} SKU</Text>
-                  </div>
-                </Col>
-                <Col xs={24} sm={12}>
-                  <div style={{ border: '1px solid #ffe7ba', background: '#fff7e6', padding: 16, borderRadius: 8, textAlign: 'center' }}>
-                    <Text type="warning" style={{ fontSize: 12, fontWeight: 600, display: 'block', color: '#fa8c16' }}>NILAI OVERSTOCK (&gt; 90 HARI)</Text>
-                    <Title level={3} style={{ color: '#fa8c16', margin: '4px 0' }}>
-                      Rp {parseFloat(charts.alertSummary?.overStockValue || 0).toLocaleString('id-ID')}
-                    </Title>
-                    <Text type="secondary" style={{ fontSize: 12 }}>{charts.alertSummary?.overStock || 0} SKU</Text>
-                  </div>
-                </Col>
-              </Row>
-              
-              <Text strong style={{ fontSize: 13, display: 'block', marginBottom: 12 }}>AGING BUCKET (BERDASARKAN NILAI STOK)</Text>
-              <AgingBucketChart data={charts.agingBuckets} />
             </Card>
           </Col>
         </Row>
